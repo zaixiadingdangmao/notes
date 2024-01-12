@@ -1,0 +1,46 @@
+<!-- <input type="range" name="" id="" />
+
+<style>
+</style> -->
+
+<!-- 分割线 -->
+
+<!-- <script>
+  customElements.define(
+    'show-hello',
+    class extends HTMLElement {
+      connectedCallback() {
+        const shadow = this.attachShadow({ mode: 'open' });
+        shadow.innerHTML = `<p>
+        Hello, ${this.getAttribute('name')}
+      </p>`;
+      }
+    }
+  );
+</script>
+
+<show-hello name="John"></show-hello> -->
+
+<!-- 分割线 -->
+
+<style>
+  /* 文档样式对 #elem 内的 shadow tree 无作用 (1) */
+  p {
+    color: red;
+  }
+</style>
+
+<div id="elem"></div>
+
+<script>
+  elem.attachShadow({ mode: 'open' });
+  // shadow tree 有自己的样式 (2)
+  elem.shadowRoot.innerHTML = `
+    <style> p { font-weight: bold; } </style>
+    <p>Hello, John!</p>
+  `;
+
+  // <p> 只对 shadow tree 里面的查询可见 (3)
+  alert(document.querySelectorAll('p').length); // 0
+  alert(elem.shadowRoot.querySelectorAll('p').length); // 1
+</script>

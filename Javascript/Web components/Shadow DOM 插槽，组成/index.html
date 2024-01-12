@@ -1,0 +1,185 @@
+<!-- <script>
+  customElements.define(
+    'user-card',
+    class extends HTMLElement {
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.innerHTML = `
+      <div>Name:
+        <slot name="username"></slot>
+      </div>
+      <div>Birthday:
+        <slot name="birthday"></slot>
+      </div>
+    `;
+      }
+    }
+  );
+</script>
+
+<user-card>
+  <span slot="username">John Smith</span>
+  <span slot="birthday">01.01.2001</span>
+</user-card>
+ -->
+
+<!-- 分割线 -->
+<!-- 
+<script>
+  customElements.define(
+    'user-card',
+    class extends HTMLElement {
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.innerHTML = `
+      <div>Name:
+        <slot name="username"></slot>
+      </div>
+      <div>Birthday:
+        <slot name="birthday"></slot>
+      </div>
+      <fieldset>
+        <legend>Other information</legend>
+        <slot></slot>
+      </fieldset>
+      `;
+      }
+    }
+  );
+</script>
+
+<user-card>
+  <div>I like to swim.</div>
+
+  <span slot="username">John Smith</span>
+  <span slot="birthday">01.01.2001</span>
+
+  <div>...And play volleyball too!</div>
+</user-card> -->
+
+<!-- 分割线 -->
+
+<!-- <!DOCTYPE html>
+<template id="tmpl">
+  <style>
+    ul {
+      margin: 0;
+      list-style: none;
+      padding-left: 20px;
+    }
+
+    ::slotted([slot='title']) {
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    ::slotted([slot='title'])::before {
+      content: '📂';
+      font-size: 14px;
+    }
+
+    .closed ::slotted([slot='title'])::before {
+      content: '📁';
+    }
+
+    .closed ul {
+      display: none;
+    }
+  </style>
+
+  <div class="menu">
+    <slot name="title"></slot>
+    <ul>
+      <slot name="item"></slot>
+    </ul>
+  </div>
+</template>
+
+<script>
+  customElements.define(
+    'custom-menu',
+    class extends HTMLElement {
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.append(tmpl.content.cloneNode(true));
+
+        this.shadowRoot.querySelector('slot[name="title"]').onclick = () => {
+          this.shadowRoot.querySelector('.menu').classList.toggle('closed');
+        };
+      }
+    }
+  );
+</script>
+
+<custom-menu>
+  <span slot="title">Candy menu</span>
+  <li slot="item">Lollipop</li>
+  <li slot="item">Fruit Toast</li>
+  <li slot="item">Cup Cake</li>
+</custom-menu> -->
+
+
+<!-- 分割线 -->
+
+<!-- <custom-menu id="menu">
+  <span slot="title">Candy menu</span>
+</custom-menu>
+
+<script>
+  customElements.define(
+    'custom-menu',
+    class extends HTMLElement {
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.innerHTML = `<div class="menu">
+      <slot name="title"></slot>
+      <ul><slot name="item"></slot></ul>
+    </div>`;
+
+        // shadowRoot can't have event handlers, so using the first child
+        this.shadowRoot.firstElementChild.addEventListener('slotchange', e =>
+          alert('slotchange: ' + e.target.name)
+        );
+      }
+    }
+  );
+
+  setTimeout(() => {
+    menu.insertAdjacentHTML('beforeEnd', '<li slot="item">Lollipop</li>');
+  }, 1000);
+
+  setTimeout(() => {
+    menu.querySelector('[slot="title"]').innerHTML = 'New menu';
+  }, 2000);
+</script> -->
+
+
+
+<template id="tmpl">
+  <style>
+    /* 这些样式将从内部应用到 custom-dialog 元素上 */
+    :host {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: inline-block;
+      border: 1px solid red;
+      padding: 10px;
+    }
+  </style>
+  <slot></slot>
+</template>
+
+<script>
+customElements.define('custom-dialog', class extends HTMLElement {
+  connectedCallback() {
+    this.attachShadow({mode: 'open'}).append(tmpl.content.cloneNode(true));
+  }
+});
+</script>
+
+<custom-dialog>
+  Hello!
+</custom-dialog>

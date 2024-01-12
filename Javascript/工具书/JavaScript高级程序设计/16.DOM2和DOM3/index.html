@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div class="wrapper-box" style="background-color: pink">
+      <p class="wrapper--p">1. HTML</p>
+      <p class="wrapper--p">2. CSS</p>
+      <p class="wrapper--p">
+        3. JavaScript
+        <span class="target"></span>
+      </p>
+    </div>
+
+    <script>
+      /**
+       * **************
+       * NodeIterator
+       */
+
+      let iterator = document.createNodeIterator(
+        document.documentElement,
+        NodeFilter.SHOW_ELEMENT,
+        filter,
+        false
+      );
+
+      function filter(node) {
+        if (node.nodeType == 1) {
+          return Array.from(node.classList).includes('wrapper--p')
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP;
+        } else {
+          return NodeFilter.FILTER_SKIP;
+        }
+      }
+
+      // let node = iterator.nextNode();
+      // while (node) {
+      //   const text = node.innerText;
+      //   node.innerText = `😊 ${text}`;
+      //   node = iterator.nextNode();
+      // }
+
+      /**
+       * *****************
+       * TreeWalker
+       */
+
+      const treeWalker = document.createTreeWalker(
+        document.documentElement,
+        NodeFilter.SHOW_ALL,
+        filter,
+        false
+      );
+
+      let node = treeWalker.nextNode();
+      while (node) {
+        console.log(node);
+        node = treeWalker.nextNode();
+      }
+    </script>
+  </body>
+</html>

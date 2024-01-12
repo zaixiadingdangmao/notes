@@ -1,0 +1,350 @@
+<!-- 1 模拟传统面向对象语言的装饰者模式 -->
+<!-- <script>
+  var Plane = function () {};
+
+  Plane.prototype.fire = function () {
+    console.log('发射普通子弹');
+  };
+
+  var MissileDecorator = function (plane) {
+    this.plane = plane;
+  };
+
+  MissileDecorator.prototype.fire = function () {
+    this.plane.fire();
+    console.log('发射导弹');
+  };
+
+  var AtomDecorator = function (plane) {
+    this.plane = plane;
+  };
+
+  AtomDecorator.prototype.fire = function () {
+    this.plane.fire();
+    console.log('发射原子弹');
+  };
+
+  var plane = new Plane();
+  plane = new MissileDecorator(plane);
+  // plane = new AtomDecorator(plane);
+
+  plane.fire();
+  // 分别输出： 发射普通子弹、发射导弹、发射原子弹
+</script> -->
+
+<!-- 2 回到 JavaScript 的装饰者 -->
+<!-- <script>
+  var plane = {
+    fire: function () {
+      console.log('发射普通子弹');
+    }
+  };
+
+  var missileDecorator = function () {
+    console.log('发射导弹');
+  };
+
+  var atomDecorator = function () {
+    console.log('发射原子弹');
+  };
+
+  var fire1 = plane.fire;
+
+  plane.fire = function () {
+    fire1();
+    missileDecorator();
+  };
+
+  var fire2 = plane.fire;
+
+  plane.fire = function () {
+    fire2();
+    atomDecorator();
+  };
+
+  plane.fire();
+  // 分别输出： 发射普通子弹、发射导弹、发射原子弹
+</script> -->
+
+<!-- 3 装饰函数 -->
+
+<!-- 
+<button id="button">按钮</button>
+<script>
+  // var a = function () {
+  //   alert(1);
+  // };
+
+  // var _a = a;
+
+  // a = function () {
+  //   _a();
+  //   alert(2);
+  // };
+
+  // a();
+
+  /********************************/
+
+  // window.onload = function () {
+  //   alert(1);
+  // };
+
+  // var _onload = window.onload || function () {};
+
+  // window.onload = function () {
+  //   _onload();
+  //   alert(2);
+  // };
+
+  /********************************/
+
+  // var _getElementById = document.getElementById;
+
+  // document.getElementById = function (id) {
+  //   alert(1);
+  //   return _getElementById; // (1)
+  // };
+  // var button = document.getElementById('button');
+
+  /********************************/
+
+  // var _getElementById = document.getElementById;
+
+  // document.getElementById = function (id) {
+  //   alert(1);
+  //   return _getElementById.apply(document, arguments); // (1)
+  // };
+  // var button = document.getElementById('button');
+</script>
+-->
+
+<!-- 用 AOP 装饰函数 -->
+<!-- <button id="button">按钮</button>
+<script>
+  Function.prototype.before = function (beforefn) {
+    var __self = this; // 保存原函数的引用
+    return function () {
+      // 返回包含了原函数和新函数的"代理"函数
+      beforefn.apply(this, arguments); // 执行新函数，且保证this 不被劫持，新函数接受的参数
+      // 也会被原封不动地传入原函数，新函数在原函数之前执行
+      return __self.apply(this, arguments); // 执行原函数并返回原函数的执行结果，
+      // 并且保证this 不被劫持
+    };
+  };
+
+  Function.prototype.after = function (afterfn) {
+    var __self = this;
+    return function () {
+      var ret = __self.apply(this, arguments);
+      afterfn.apply(this, arguments);
+      return ret;
+    };
+  };
+
+  // function sayHi() {
+  //   console.log('🚩  -> file: index.html -> line 152 -> ', '我是小帅哥');
+  // }
+  // sayHi = sayHi
+  //   .before(() => {
+  //     console.log('🚩  -> file: index.html -> line 155 -> ', '你好，');
+  //   })
+  //   .after(() => {
+  //     console.log('🚩  -> file: index.html -> line 159 -> ', '再见！');
+  //   });
+
+  // sayHi();
+
+  // document.getElementById = document.getElementById.before(() => {
+  //   alert(1);
+  // });
+
+  // var button = document.getElementById('button');
+  // console.log(button);
+
+  // window.onload = function () {
+  //   alert(1);
+  // };
+
+  // window.onload = (window.onload || function () {})
+  //   .after(function () {
+  //     alert(2);
+  //   })
+  //   .after(function () {
+  //     alert(3);
+  //   })
+  //   .after(function () {
+  //     alert(4);
+  //   });
+
+  /********************************/
+
+  var before = function (fn, beforefn) {
+    return function () {
+      beforefn.apply(this, arguments);
+      return fn.apply(this, arguments);
+    };
+  };
+
+  var a = before(
+    function () {
+      alert(3);
+    },
+    function () {
+      alert(2);
+    }
+  );
+
+  a = before(a, function () {
+    alert(1);
+  });
+
+  a();
+</script> -->
+
+<!-- AOP 的应用实例  -->
+
+<!-- 1  数据统计上报 -->
+
+<!-- <html>
+  <button tag="login" id="button">点击打开登录浮层</button>
+  <script>
+    // var showLogin = function () {
+    //   console.log('打开登录浮层');
+    //   log(this.getAttribute('tag'));
+    // };
+
+    // var log = function (tag) {
+    //   console.log('上报标签为: ' + tag);
+    //   // (new Image).src = 'http:// xxx.com/report?tag=' + tag;    // 真正的上报代码略
+    // };
+
+    // document.getElementById('button').onclick = showLogin;
+
+    /**************** AOP 切片 ****************/
+
+    Function.prototype.after = function (afterfn) {
+      var __self = this;
+      return function () {
+        var ret = __self.apply(this, arguments);
+        afterfn.apply(this, arguments);
+        return ret;
+      };
+    };
+
+    var showLogin = function () {
+      console.log('打开登录浮层');
+    };
+
+    var log = function (tag) {
+      console.log('上报标签为: ' + this.getAttribute('tag'));
+    };
+
+    showLogin = showLogin.after(log);
+
+    document.getElementById('button').onclick = showLogin;
+  </script>
+</html> -->
+
+<!-- 2.用 AOP动态改变函数的参数 -->
+
+<!-- <script>
+  Function.prototype.before = function (beforefn) {
+    var __self = this;
+    return function () {
+      beforefn.apply(this, arguments); // (1)
+      return __self.apply(this, arguments); // (2)
+    };
+  };
+
+  // var func = function (param) {
+  //   console.log(param); // 输出： {a: "a", b: "b"}
+  // };
+
+  // func = func.before(function (param) {
+  //   param.b = 'b';
+  // });
+
+  // func({ a: 'a' });
+
+  var ajax = function (type, url, param) {
+    console.log(param); // 发送ajax 请求的代码略
+  };
+
+  var getToken = function () {
+    return 'Token';
+  };
+
+  ajax = ajax.before(function (type, url, param) {
+    param.Token = getToken();
+  });
+
+  ajax('get', 'http:// xxx.com/userinfo', { name: 'sven' });
+  // {name: "sven", Token: "Token
+</script> -->
+
+<!-- 3  插件式的表单验证 -->
+
+<html>
+  <body>
+    用户名：<input id="username" type="text" />
+    密码：
+    <input id="password" type="password" />
+    <input id="submitBtn" type="button" value="提交" />
+  </body>
+
+  <script>
+    Function.prototype.before = function (beforefn) {
+      var __self = this;
+      return function () {
+        if (beforefn.apply(this, arguments) === false) {
+          // beforefn 返回false 的情况直接return，不再执行后面的原函数
+          return;
+        }
+        return __self.apply(this, arguments);
+      };
+    };
+
+    // var username = document.getElementById('username'),
+    //   password = document.getElementById('password'),
+    //   submitBtn = document.getElementById('submitBtn');
+
+    // var validata = function () {
+    //   if (username.value === '') {
+    //     alert('用户名不能为空');
+    //     return false;
+    //   }
+    //   if (password.value === '') {
+    //     alert('密码不能为空');
+    //     return false;
+    //   }
+    // };
+
+    // var fetch = function () {
+    //   var param = {
+    //     username: username.value,
+    //     password: password.value
+    //   };
+
+    //   console.log('🚩  -> file: index.html -> line 328 -> ', '发送请求', param);
+    //   // ajax('http:// xxx.com/login', param);
+    // };
+
+    // const formSubmit = fetch.before(validata);
+
+    // submitBtn.onclick = function () {
+    //   formSubmit();
+    // };
+
+    // var func = function () {
+    //   alert(1);
+    // };
+    // func.a = 'a';
+
+    // func = func.after(function () {
+    //   alert(2);
+    // });
+
+    // alert(func.a); // is not a function
+  </script>
+</html>

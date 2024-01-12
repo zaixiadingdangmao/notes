@@ -1,0 +1,26 @@
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<div id="app">{{ message }}</div>
+
+<script>
+  const { createApp } = Vue;
+
+  createApp({
+    data() {
+      return {
+        message: Date.now()
+      };
+    },
+    updated() {},
+    created() {},
+    mounted() {
+      console.dir(this.$el.textContent);
+
+      this.message = 'Hello Vue!';
+
+      Promise.resolve().finally(res => {
+        console.dir(this.$el.textContent);
+      });
+    }
+  }).mount('#app');
+</script>

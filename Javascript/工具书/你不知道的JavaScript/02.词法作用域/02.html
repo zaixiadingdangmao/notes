@@ -1,0 +1,13 @@
+<script>
+  const obj = {
+    name:'z'
+  };
+
+  with (obj) {
+    name = 'zxl';
+    age = 18;
+  }
+
+  console.log('🚩  -> file: 02.html:7 -> obj', obj);
+  console.log('🚩  -> file: 02.html:8 -> obj', name, age);
+</script>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // function testFinally() {
+      //   try {
+      //     console.log('2');
+      //     return 2;
+      //   } catch (error) {
+      //     console.log('1');
+      //     return 1;
+      //   } finally {
+      //     console.log('0');
+      //     return 0;
+      //   }
+      // }
+
+      class CustomError extends Error {
+        constructor(message) {
+          super(message);
+          this.name = 'CustomError';
+          this.message = message;
+        }
+      }
+
+      // function testFinally() {
+      //   try {
+      //     console.log('nihao');
+
+      //   } catch (error) {
+      //     console.log(error);
+      //   }
+      // }
+
+      // let res = testFinally(); // 0
+      window.onerror = (message, url, line) => {
+        console.log(message);
+        return false;
+      };
+
+      throw new CustomError('My message');
+    </script>
+  </body>
+</html>

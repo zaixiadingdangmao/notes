@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>代理与反射</title>
+  </head>
+  <body></body>
+  <script>
+    // const target = { foo: 'bar' };
+    // const handler = {
+    //   get: Reflect.get
+    // };
+    // const proxy = new Proxy(target, handler);
+    // console.log(proxy.foo); // bar
+
+    // ------------------------------------------------------------
+
+    // const target = {};
+    // Object.defineProperty(target, 'foo', {
+    //   configurable: false,
+    //   writable: false,
+    //   value: 'bar'
+    // });
+
+    // const handler = {
+    //   get() {
+    //     return 'qux';
+    //   }
+    // };
+    // const proxy = new Proxy(target, handler);
+    // console.log(proxy.foo); // TypeError
+
+    // ------------------------------------------------------------
+
+    // const myTarget = {};
+
+    // const proxy = new Proxy(myTarget, {
+    //   set(target, property, value, receiver) {
+    //     if (value === 'bar') {
+    //       value = 'zxlzxl';
+    //     }
+    //     return Reflect.set(target, property, value, receiver);
+    //   }
+    // });
+    // proxy.foo = 'bar';
+    // console.log(proxy);
+    // console.log('proxy.foo', proxy.foo);
+    // proxy.foo = 'ni shi yi ge xiao shuai ge';
+    // console.log('proxy.foo', proxy.foo);
+
+    // ------------------------------------------------------------
+
+    // const handler1 = {
+    //   has(target, key) {
+    //     if (key[0] === '_') {
+    //       return false;
+    //     }
+    //     return key in target;
+    //   }
+    // };
+
+    // const monster1 = {
+    //   _secret: 'easily scared',
+    //   eyeCount: 4
+    // };
+
+    // const proxy1 = new Proxy(monster1, handler1);
+    // console.log('eyeCount' in proxy1);
+    // console.log('_secret' in proxy1);
+    // console.log(Object.hasOwnProperty.call(proxy1, '_secret'));
+    // console.log('_secret' in monster1);
+
+    // console.log(
+    //   Object.getOwnPropertyDescriptor.call(monster1, 'eyeCount')
+    // );
+
+    // ------------------------------------------------------------
+
+    // const myTarget = {};
+    // const proxy = new Proxy(myTarget, {
+    //   deleteProperty(target, property) {
+    //     console.log('deleteProperty()');
+
+    //     return Reflect.deleteProperty(...arguments);
+    //   }
+    // });
+    // delete proxy.foo; // deleteProperty()
+    // console.log('proxy', proxy);
+
+    // ------------------------------------------------------------
+    // function Fun() {
+    //   this.shuaige = { sss: { a: 1, b: 2 } };
+    // }
+    // Fun.prototype.xxx = 'zxl';
+
+    // let obj = new Fun();
+    // obj.id = 1;
+    // obj.name = 'zxl';
+    // console.log("obj", obj)
+
+    // // var p = new Proxy(obj, {
+    // //   ownKeys: function (target) {
+    // //     console.log('called');
+    // //     return ['a', 'b', 'c'];
+    // //   }
+    // // });
+
+    // // console.log(Object.getOwnPropertyNames(p));
+    // // console.log(Object.keys(p));
+    // // obj.shuaige.sss.a = 10;
+    // // console.log('obj', obj);
+    // // let obj1 = new Fun();
+    // // console.log(obj1);
+    // console.log(Object.getOwnPropertyNames(obj));
+    // console.log(Object.keys(obj));
+
+    // ------------------------------------------------------------
+
+    const myTarget = {};
+    const proxy = new Proxy(myTarget, {
+      getPrototypeOf(target) {
+        console.log('getPrototypeOf()');
+        return Reflect.getPrototypeOf(...arguments);
+      }
+    });
+    // console.log("Object.getPrototypeOf(proxy)", Object.getPrototypeOf(proxy))
+    // console.log("proxy.__proto__", proxy.__proto__)
+  </script>
+</html>

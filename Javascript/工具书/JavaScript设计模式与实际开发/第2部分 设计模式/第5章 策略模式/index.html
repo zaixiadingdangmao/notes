@@ -1,0 +1,141 @@
+<!-- <body>
+  <div style="position: absolute; background: blue" id="div">我是 div</div>
+</body>
+
+<script>
+  var tween = {
+    linear: function (t, b, c, d) {
+      return (c * t) / d + b;
+    },
+    easeIn: function (t, b, c, d) {
+      return c * (t /= d) * t + b;
+    },
+    strongEaseIn: function (t, b, c, d) {
+      return c * (t /= d) * t * t * t * t + b;
+    },
+    strongEaseOut: function (t, b, c, d) {
+      return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+    },
+    sineaseIn: function (t, b, c, d) {
+      return c * (t /= d) * t * t + b;
+    },
+    sineaseOut: function (t, b, c, d) {
+      return c * ((t = t / d - 1) * t * t + 1) + b;
+    }
+  };
+
+  var Animate = function (dom) {
+    this.dom = dom; // 进行运动的 dom 节点
+    this.startTime = 0; // 动画开始时间
+    this.startPos = 0; // 动画开始时，dom 节点的位置，即 dom 的初始位置
+    this.endPos = 0; // 动画结束时，dom 节点的位置，即 dom 的目标位置
+    this.propertyName = null; // dom 节点需要被改变的 css 属性名
+    this.easing = null; // 缓动算法
+    this.duration = null; // 动画持续时间
+  };
+
+  Animate.prototype.start = function (propertyName, endPos, duration, easing) {
+    this.startTime = +new Date(); // 动画启动时间
+    this.startPos = this.dom.getBoundingClientRect()[propertyName]; // dom 节点初始位置
+    this.propertyName = propertyName; // dom 节点需要被改变的 CSS 属性名
+    this.endPos = endPos; // dom 节点目标位置
+    this.duration = duration; // 动画持续事件
+    this.easing = tween[easing]; // 缓动算法
+    var self = this;
+    var timeId = setInterval(function () {
+      // 启动定时器，开始执行动画
+      if (self.step() === false) {
+        // 如果动画已结束，则清除定时器
+        clearInterval(timeId);
+      }
+    }, 19);
+  };
+
+  Animate.prototype.step = function () {
+    var t = +new Date(); // 取得当前时间
+    if (t >= this.startTime + this.duration) {
+      // (1)
+      this.update(this.endPos); // 更新小球的 CSS 属性值
+      return false;
+    }
+    var pos = this.easing(
+      t - this.startTime,
+      this.startPos,
+      this.endPos - this.startPos,
+      this.duration
+    );
+    // pos 为小球当前位置
+    this.update(pos); // 更新小球的 CSS 属性值
+  };
+
+  Animate.prototype.update = function (pos) {
+    this.dom.style[this.propertyName] = pos + 'px';
+  };
+
+  var div = document.getElementById('div');
+  var animate = new Animate(div);
+  animate.start('left', 500, 2000, 'sineaseIn');
+</script> -->
+
+<script>
+  var strategies = {
+    isNonEmpty: function (value, errorMsg) {
+      // 不为空
+      if (value === '') {
+        return errorMsg;
+      }
+    },
+    minLength: function (value, length, errorMsg) {
+      // 限制最小长度
+      if (value.length < length) {
+        return errorMsg;
+      }
+    },
+    isMobile: function (value, errorMsg) {
+      // 手机号码格式
+      if (!/(^1[3|5|8][0-9]{9}$)/.test(value)) {
+        return errorMsg;
+      }
+    }
+  };
+
+  var Validator = function () {
+    this.cache = []; // 保存校验规则
+  };
+
+  Validator.prototype.add = function (value, rule, errorMsg) {
+    var ary = rule.split(':'); // 把 strategy 和参数分开
+    this.cache.push(function () {
+      // 把校验的步骤用空函数包装起来，并且放入 cache
+      var strategy = ary.shift(); // 用户挑选的 strategy
+      ary.unshift(value); // 把 input 的 value 添加进参数列表
+      ary.push(errorMsg); // 把 errorMsg 添加进参数列表
+      return strategies[strategy].apply(this, ary);
+    });
+  };
+
+  Validator.prototype.start = function () {
+    for (var i = 0, validatorFunc; (validatorFunc = this.cache[i++]); ) {
+      var msg = validatorFunc(); // 开始校验，并取得校验后的返回信息
+      if (msg) {
+        // 如果有确切的返回值，说明校验没有通过
+        return msg;
+      }
+    }
+  };
+
+  var validataFunc = function () {
+    var validator = new Validator(); // 创建一个 validator 对象
+    /***************添加一些校验规则****************/
+    // validator.add('', 'isNonEmpty', '用户名不能为空');
+    validator.add('123', 'minLength:6', '密码长度不能少于 6 位');
+    // validator.add(registerForm.phoneNumber, 'isMobile', '手机号码格式不正确');
+    var errorMsg = validator.start(); // 获得校验结果
+    return errorMsg; // 返回校验结果
+  };
+
+  const errorMsg = validataFunc();
+  if (errorMsg) {
+    console.log('🚩  -> file: index.html -> line 148 -> ', errorMsg);
+  }
+</script>

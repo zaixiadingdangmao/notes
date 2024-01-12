@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.js"></script>
+  </head>
+  <body>
+    <script>
+      // const Button = {
+      //   init(w, h) {
+      //     this.w = w;
+      //     this.h = h;
+
+      //     this.label = '这里有一个按钮';
+      //     this.style = {
+      //       color: 'pink'
+      //     };
+      //   }
+      // };
+
+      // const btn1 = Object.create(Button);
+      // btn1.init(50, 50);
+      // btn1.label = '123';
+      // btn1.style.color = 'deeppink';
+
+      // console.log('🚀  -> file: index.html:20 -> btn1:', btn1);
+
+      // const btn2 = Object.create(Button);
+      // btn2.init(100, 100);
+      // console.log('🚀  -> file: index.html:24 -> btn2:', btn2);
+
+      class Button {
+        static name = 'zxl';
+
+        label = '这里有一个按钮';
+        style = {
+          color: 'pink'
+        };
+        constructor(w, h) {
+          this.init(w, h);
+        }
+        init(w, h) {
+          this.w = w;
+          this.h = h;
+        }
+      }
+
+      const btn1 = new Button(50, 50);
+      btn1.style.color = 'deeppink';
+      console.log('🚀  -> file: index.html:49 -> btn1:', btn1);
+
+      const btn2 = new Button(100, 100);
+      console.log('🚀  -> file: index.html:52 -> btn2:', btn2);
+    </script>
+  </body>
+</html>

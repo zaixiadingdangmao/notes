@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <pre id="code"></pre>
+    <script>
+      /* const json1 = JSON.stringify(undefined);
+      console.log(JSON.parse(json1)); */
+
+      /* let book = {
+        title: 'Professional JavaScript',
+        authors: ['Nicholas C. Zakas', 'Matt Frisbie'],
+        edition: 4,
+        year: 2017
+      };
+      let jsonText = JSON.stringify(book);
+      let bookCopy = JSON.parse(jsonText); */
+
+      /* let book = {
+        title: 'Professional JavaScript',
+        authors: ['Nicholas C. Zakas', 'Matt Frisbie'],
+        edition: 4,
+        year: 2017
+      };
+      let jsonText = JSON.stringify(book, ['title', 'edition']);
+
+      /* let book = {
+        title: 'Professional JavaScript',
+        authors: ['Nicholas C. Zakas', 'Matt Frisbie'],
+        edition: 4,
+        year: 2017
+      };
+
+      let jsonText = JSON.stringify(book, (key, value) => {
+        switch (key) {
+          case 'title':
+            return undefined;
+          case 'authors':
+            return value.join('😜');
+          case 'year':
+            return 2022;
+          case 'edition':
+            return undefined;
+          default:
+            return value;
+        }
+      });
+
+      /* let book = {
+        title: 'Professional JavaScript',
+        authors: ['Nicholas C. Zakas', 'Matt Frisbie'],
+        edition: 4,
+        year: 2017
+      };
+      let jsonText = JSON.stringify(book, null, 4);
+      console.log(jsonText);
+
+      code.innerHTML = jsonText; */
+
+      /* let book = {
+        title: 'Professional JavaScript',
+        authors: ['Nicholas C. Zakas', 'Matt Frisbie'],
+        edition: 4,
+        year: 2017,
+        toJSON() {
+          return '张雪龙😜';
+        }
+      };
+      let jsonText = JSON.stringify(book);
+      code.innerHTML = jsonText; */
+
+      /* let book = {
+        title: 'Professional JavaScript',
+        year: 2017,
+        releaseDate: new Date(2017, 11, 1)
+      };
+      let jsonText = JSON.stringify(book);
+      let bookCopy = JSON.parse(jsonText, (key, value) => {
+        switch (key) {
+          case 'year':
+            return 2022;
+          case 'title':
+            return undefined;
+          case 'releaseDate':
+            return new Date(value);
+          default:
+            return value;
+        }
+      }); */
+
+    </script>
+  </body>
+</html>

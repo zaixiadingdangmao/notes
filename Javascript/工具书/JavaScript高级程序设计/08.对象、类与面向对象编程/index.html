@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // let person = new Object();
+      // person.name = 'Nicholas';
+      // person.age = 29;
+      // person.job = 'Software Engineer';
+      // person.sayName = function () {
+      //   console.log(this.name);
+      // };
+      // ------------------------------
+      // let person = {
+      //   name: 'Matt',
+      //   age: 27,
+      //   job: { title: 'Software engineer' }
+      // };
+      // // 声明title变量并将person.job.title的值赋给它
+      // let {
+      //   job: { title }
+      // } = person;
+      // console.log(title);
+      // ------------------------------
+      // let person = {
+      //     get() {
+      //       return this._name;
+      //     },
+      //     set(newValue) {
+      //       this._name = newValue;
+      //     }
+      // };
+
+      // Object.defineProperty(person, 'name', {
+      //   writable: true
+      // });
+
+      // let test, dest, src, result;
+      // src = {};
+      // test = { id: '1' };
+
+      // dest = { name: 'zxl' };
+      // result = Object.assign(src, test, dest);
+
+      // -----------------------------
+      // let dest = {
+      //   set a(val) {
+      //   }
+      // };
+      // let src = {
+      //   get a() {
+      //     return 'foo';
+      //   }
+      // };
+
+      // Object.assign(dest, src);
+      // console.log(dest.a);
+
+      // -----------------------------
+
+      // const { length } = [1, 2, 3];
+      // -----------------------------
+
+      // let person = {
+      //   name: 'Matt',
+      //   age: 27,
+      //   job: { title: 'Software engineer' }
+      // };
+
+      // let {
+      //   job: { title: a }
+      // } = person;
+
+      // console.log(a);
+      // -----------------------------
+
+      // let person = {
+      //   name_: '',
+      //   get name() {
+      //     return this.name_;
+      //   },
+      //   set name(name) {
+      //     this.name_ = name;
+      //   }
+      // };
+
+      // person.name = 'zxl';
+
+      // -----------------------------
+
+      // let a = {};
+      // console.log(Object.getPrototypeOf(a));
+      // let i = 0;
+      // a.toString = () => {
+      // };
+      // a.valueOf = () => {
+      //   return ++i;
+      // };
+
+      // console.log(a == 1 && a == 2 && a == 3);
+
+      // function SuperType() {
+      //   this.property = true;
+      // }
+
+      // SuperType.prototype.getSuperValue = function () {
+      //   return this.property;
+      // };
+      // SuperType.prototype.zxl = {
+      //   name: 'zxl',
+      //   age: 18
+      // };
+
+      // function SubType() {
+      //   this.subproperty = false;
+      // }
+
+      // // 继承SuperType
+      // SubType.prototype = new SuperType();
+
+      // // 新方法
+      // SubType.prototype.getSubValue = function () {
+      //   return this.subproperty;
+      // };
+
+      // // 覆盖已有的方法
+      // SubType.prototype.getSuperValue = function () {
+      //   return false;
+      // };
+
+      // let instance = new SubType();
+      // let instance2 = new SubType();
+      // instance2.zxl.age = '小帅哥';
+
+      // console.log(instance.getSuperValue()); // false
+      // console.log(new SuperType().getSuperValue());
+      // ******************************************************
+
+      // function Fun() {
+      //   this.name = {
+      //     age:18
+      //   };
+      // }
+
+      // let fun1 = new Fun();
+      // let fun2 = new Fun();
+
+      // ******************************************************
+
+      // 静态类成员
+
+      // class FunClass {
+      //   constructor(name) {
+      //     this.name = name;
+      //   }
+      //   static sayName() {
+      //     console.log('funclass', this.name);
+      //   }
+      // }
+
+      // let funclass = new FunClass('zxl');
+      // FunClass.sayName();
+
+      // function Fun(name) {
+      //   this.name = name;
+      // }
+
+      // Fun.sayName = function () {
+      //   console.log('Fun.sayName', this.name);
+      // };
+
+      // let fun = new Fun();
+
+      // Fun.sayName();
+
+      // ******************************************************
+
+      // class Vehicle {
+      //   constructor() {
+      //     console.log(new.target);
+      //     // if (new.target === Vehicle) {
+      //     //   throw new Error(
+      //     //     'Vehicle cannot be directly instantiated'
+      //     //   );
+      //     // }
+      //   }
+      // }
+
+      // class Bus extends Vehicle {}
+
+      // let vehicle = new Vehicle();
+      // let bus = new Bus();
+
+      // ******************************************************
+
+      // let obj = {
+      //   _name: 'zxl',
+      //   get name() {
+      //     return this._name;
+      //   },
+      //   set name(newValue) {
+      //     this._name = newValue;
+      //   }
+      // };
+
+      // obj.name = 'suaige'
+      // console.log("Bus -> obj", obj)
+    </script>
+  </body>
+</html>

@@ -1,0 +1,296 @@
+<!-- <script>
+  var mult = (function () {
+    var cache = {};
+    var calculate = function () {
+      // 封闭 calculate 函数
+      var a = 1;
+      for (var i = 0, l = arguments.length; i < l; i++) {
+        a = a * arguments[i];
+      }
+      return a;
+    };
+
+    return function () {
+      var args = Array.prototype.join.call(arguments, ',');
+      if (args in cache) {
+        return cache[args];
+      }
+      return (cache[args] = calculate.apply(null, arguments));
+    };
+  })();
+</script> -->
+
+<!-- 分割线 -->
+
+<!-- <img id="imgDOM" width="300" height="300">
+<script>
+  var report = function (src) {
+    var img = new Image();
+    img.src = src;
+  };
+
+  report('https://nimg.ws.126.net/?url=http%3A%2F%2Fdingyue.ws.126.net%2F2021%2F0919%2F2bb40aecj00qzo05j000dd200jg00etg00jg00et.jpg&thumbnail=650x2147483647&quality=80&type=jpg');
+</script> -->
+
+<!-- 分割线 -->
+
+<!-- <html>
+  <body>
+    <button id="execute">点击我执行命令</button>
+    <button id="undo">点击我执行命令</button>
+    <script>
+      var Tv = {
+        open: function () {
+          console.log('打开电视机');
+        },
+        close: function () {
+          console.log('关上电视机');
+        }
+      };
+
+      var createCommand = function (receiver) {
+        var execute = function () {
+          return receiver.open(); // 执行命令，打开电视机
+        };
+
+        var undo = function () {
+          return receiver.close(); // 执行命令，关闭电视机
+        };
+        
+        return {
+          execute: execute,
+          undo: undo
+        };
+      };
+
+      var setCommand = function (command) {
+        document.getElementById('execute').onclick = function () {
+          command.execute(); // 输出：打开电视机
+        };
+        document.getElementById('undo').onclick = function () {
+          command.undo(); // 输出：关闭电视机
+        };
+      };
+
+      setCommand(createCommand(Tv));
+    </script>
+  </body>
+</html> -->
+
+<!-- 分割线 -->
+<!-- <script>
+  Function.prototype.before = function (beforefn) {
+    var __self = this; // 保存原函数的引用
+    return function () {
+      // 返回包含了原函数和新函数的"代理"函数
+      beforefn.apply(this, arguments); // 执行新函数，修正 this
+      return __self.apply(this, arguments); // 执行原函数
+    };
+  };
+  Function.prototype.after = function (afterfn) {
+    var __self = this;
+    return function () {
+      var ret = __self.apply(this, arguments);
+      afterfn.apply(this, arguments);
+      return ret;
+    };
+  };
+  var func = function () {
+    console.log(2);
+  };
+
+  func = func
+    .before(function () {
+      console.log(1);
+    })
+    .after(function () {
+      console.log(3);
+    });
+
+  func();
+</script> -->
+
+<!-- 分割线 -->
+
+<!-- <script>
+  var currying = function (fn) {
+    var args = [];
+    return function () {
+      if (arguments.length === 0) {
+        return fn.apply(this, args);
+      } else {
+        [].push.apply(args, arguments);
+        return arguments.callee;
+      }
+    };
+  };
+
+  var cost = (function () {
+    var money = 0;
+    return function () {
+      for (var i = 0, l = arguments.length; i < l; i++) {
+        money += arguments[i];
+      }
+      return money;
+    };
+  })();
+
+  var cost = currying(cost); // 转化成 currying 函数
+  cost(100); // 未真正求值
+  cost(200); // 未真正求值
+  cost(300); // 未真正求值
+  cost(400); // 未真正求值
+  cost(500); // 未真正求值
+  cost(600); // 未真正求值
+  cost(800); // 未真正求值
+
+  cost(); // 求值
+
+console.log('🚩  -> file: index.html -> line 148 -> ', cost());
+</script> -->
+
+<!-- 分割线 -->
+
+<!-- <script>
+  Function.prototype.uncurrying = function () {
+    var self = this;
+    return function () {
+      var obj = Array.prototype.shift.call(arguments);
+      return self.apply(obj, arguments);
+    };
+  };
+
+  for (var i = 0, fn, ary = ['push', 'shift', 'forEach']; (fn = ary[i++]); ) {
+    Array[fn] = Array.prototype[fn].uncurrying();
+  }
+
+  var obj = {
+    length: 3,
+    0: 1,
+    1: 2,
+    2: 3
+  };
+
+  Array.push(obj, 4); // 向对象中添加一个元素
+  console.log(obj.length); // 输出：4
+
+  var first = Array.shift(obj); // 截取第一个元素
+  console.log(first); // 输出：1
+  console.log(obj); // 输出：{0: 2, 1: 3, 2: 4, length: 3}
+  Array.forEach(obj, function (i, n) {
+    console.log(n); // 分别输出：0, 1, 2
+  });
+</script> -->
+
+<!-- 分割线 -->
+
+<!-- <button id="execute">点击我执行命令</button>
+
+<script>
+  var throttle = function (fn, interval) {
+    var __self = fn, // 保存需要被延迟执行的函数引用
+      timer, // 定时器
+      firstTime = true; // 是否是第一次调用
+    return function () {
+      var args = arguments,
+        __me = this;
+      if (firstTime) {
+        // 如果是第一次调用，不需延迟执行
+        __self.apply(__me, args);
+        return (firstTime = false);
+      }
+      if (timer) {
+        // 如果定时器还在，说明前一次延迟执行还没有完成
+        return false;
+      }
+      timer = setTimeout(function () {
+        // 延迟一段时间执行
+        clearTimeout(timer);
+        timer = null;
+        __self.apply(__me, args);
+      }, interval || 500);
+    };
+  };
+
+  // window.onresize = throttle(function () {
+  //   console.log(1);
+  // }, 500);
+
+  const fn = throttle(() => {
+    console.log(1);
+  }, 500);
+
+  document.querySelector('#execute').addEventListener('click', fn);
+</script> -->
+
+<!-- 分割线 -->
+<!-- <body></body>
+
+<script>
+  var timeChunk = function (ary, fn, count) {
+    var obj, t;
+    var len = ary.length;
+    var start = function () {
+      for (var i = 0; i < Math.min(count || 1, ary.length); i++) {
+        var obj = ary.shift();
+        fn(obj);
+      }
+    };
+    return function () {
+      t = setInterval(function () {
+        if (ary.length === 0) {
+          // 如果全部节点都已经被创建好
+          return clearInterval(t);
+        }
+        start();
+      }, 200); // 分批执行的时间间隔，也可以用参数的形式传入
+    };
+  };
+
+  var ary = [];
+  for (var i = 1; i <= 100000; i++) {
+    ary.push(i); // 假设 ary 装载了 1000 个好友的数据
+  }
+
+  var renderFriendList = timeChunk(
+    ary,
+    function (n) {
+      var div = document.createElement('div');
+      div.innerHTML = n;
+      document.body.appendChild(div);
+    },
+    10000
+  );
+  renderFriendList();
+</script> -->
+
+<!-- 惰性加载函数 -->
+<html>
+  <body>
+    <div id="div1">点我绑定事件</div>
+    <script>
+      var addEvent = function (elem, type, handler) {
+        if (window.addEventListener) {
+          addEvent = function (elem, type, handler) {
+            elem.addEventListener(type, handler, false);
+          };
+        } else if (window.attachEvent) {
+          addEvent = function (elem, type, handler) {
+            elem.attachEvent('on' + type, handler);
+          };
+        }
+        addEvent(elem, type, handler);
+      };
+
+      var div = document.getElementById('div1');
+
+      addEvent(div, 'click', function () {
+        alert(1);
+      });
+      
+      addEvent(div, 'click', function () {
+        alert(2);
+      });
+    </script>
+  </body>
+</html>

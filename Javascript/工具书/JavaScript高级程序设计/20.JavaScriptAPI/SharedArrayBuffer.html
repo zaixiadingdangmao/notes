@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SharedArrayBuffer</title>
+    <style>
+      body {
+        border: thick double pink;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe
+      id="myIframe"
+      src="http://192.168.0.168:8080/JavaScript%E9%AB%98%E7%BA%A7%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/20.JavaScriptAPI/myframe.html"
+      frameborder="0"
+    ></iframe>
+    <script>
+      const iframeWindo = document.getElementById('myIframe').contentWindow;
+
+
+      // 假设当前页面没有改变 location，这条语句会成功添加 message 到发送队列中去（targetOrigin 设置对了）
+      iframeWindo.postMessage(
+        'hello there!',
+        'http://192.168.0.168:8080/JavaScript%E9%AB%98%E7%BA%A7%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/20.JavaScriptAPI/myframe.html'
+      );
+
+      function receiveMessage(event) {
+        // 我们能相信信息的发送者吗？(也许这个发送者和我们最初打开的不是同一个页面).
+        // if (
+        //   event.origin !==
+        //   'http://192.168.0.168:8080/JavaScript%E9%AB%98%E7%BA%A7%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/20.JavaScriptAPI/myframe.html'
+        // )
+        //   return;
+
+        console.log('11111111111111');
+        // event.source 是我们通过 window.open 打开的弹出页面 popup
+        // event.data 是 popup 发送给当前页面的消息 "hi there yourself!  the secret response is: rheeeeet!"
+      }
+      window.addEventListener('message', receiveMessage, false);
+    </script>
+  </body>
+</html>

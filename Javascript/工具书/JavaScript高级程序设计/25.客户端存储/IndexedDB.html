@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IndexedDB</title>
+  </head>
+  <body>
+    <button onclick="init()">init</button>
+    <script>
+      var data = [
+        {
+          id: 1,
+          name: '小帅哥',
+          age: '18'
+        },
+        {
+          id: 2,
+          name: '皮皮蛇',
+          age: '16'
+        }
+      ];
+
+      // // 打开数据库，两个参数（数据库名字，版本号），如果数据库不存在则创建一个新的库
+      // var request = window.indexedDB.open('myDatabase', '1');
+
+      // // 数据库操作过程中出错，则错误回调被触发
+      // request.onerror = event => {
+      //   console.log(event);
+      // };
+
+      // // 数据库操作一切正常，所有操作后触发
+      // request.onsuccess = event => {
+      //   var db = event.target.result;
+      //   // 数据读取
+      //   var usersObjectStore = db.transaction('list').objectStore('list');
+
+      //   var userRequest = usersObjectStore.get(2);
+      //   userRequest.onsuccess = function (event) {
+      //     console.log(event.target.result);
+      //   };
+      // };
+
+      // // 创建一个新的数据库或者修改数据库版本号时触发
+      // request.onupgradeneeded = event => {
+      //   var db = event.target.result;
+
+      //   // 创建对象仓库用来存储数据，把id作为keyPath，keyPath必须保证不重复，相当于数据库的主键
+      //   var objectStore = db.createObjectStore('list', { keyPath: 'id' });
+
+      //   // 建立索引，name和age可能重复，因此unique设置为false
+      //   objectStore.createIndex('name', 'name', { unique: false });
+      //   objectStore.createIndex('age', 'age', { unique: false });
+
+      //   // 确保在插入数据前对象仓库已经建立
+      //   objectStore.transaction.oncomplete = () => {
+      //     // 将数据保存到数据仓库
+      //     var usersObjectStore = db
+      //       .transaction('list', 'readwrite')
+      //       .objectStore('list');
+      //     data.forEach(data => {
+      //       usersObjectStore.add(data);
+      //     });
+      //   };
+      // };
+
+      // ------------------------------------------------------
+
+      let request,
+        version = 1;
+
+      const hobby = [
+        { id: 1, label: 'HTML' },
+        { id: 2, label: 'CSS' },
+        { id: 3, label: 'JavaScript' }
+      ];
+
+      request = indexedDB.open('zxl', version);
+
+      request.onerror = event => alert(`Failed to open: ${event.target.errorCode}`);
+
+      // 成功
+      request.onsuccess = event => {
+        const db = event.target.result;
+
+        db.transaction('hobby', 'readwrite').oncomplete = ev => {
+          const transaction = ev.target.db.transaction('hobby', 'readwrite');
+
+          const store = transaction.objectStore('hobby');
+          store.add({ id: 4, label: 'Vue' });
+          // store.delete(2);
+          store.get(1).onsuccess = ev => {
+            console.log(ev.target.result);
+          };
+        };
+
+        // store.add({ id: 4, label: 'Vue' });
+
+        // store.get(1).onsuccess = ev => {
+        //   console.log(ev.target.result);
+        // };
+
+        // const label = store.index('label');
+        // label.get('CSS').onsuccess = ev => {
+        //   console.log(ev.target.result);
+        // };
+      };
+
+      // 创建或者更新
+      request.onupgradeneeded = event => {
+        const db = event.target.result;
+
+        if (db.objectStoreNames.contains('hobby')) {
+          db.deleteObjectStore('hobby');
+        }
+
+        const hobbyStore = db.createObjectStore('hobby', { keyPath: 'id' });
+
+        hobbyStore.createIndex('label', 'label', { unique: false });
+
+        hobbyStore.transaction.oncomplete = ev => {
+          const transaction = ev.target.db.transaction('hobby', 'readwrite');
+
+          const store = transaction.objectStore('hobby');
+
+          hobby.forEach(data => {
+            store.add(data);
+          });
+        };
+
+        // db.createObjectStore('food', { keyPath: 'name' });
+      };
+    </script>
+  </body>
+</html>

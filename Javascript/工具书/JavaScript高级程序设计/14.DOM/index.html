@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div
+      class="wrapper-box"
+      style="background-color: pink"
+      onclick="handlerClick(this)"
+    >
+      <p>1. HTML</p>
+      <p>3. CSS</p>
+    </div>
+
+    <div style="height: 1000px"></div>
+    <div class="scrollBox">12312312312312</div>
+    <div style="height: 1000px"></div>
+  </body>
+  <script>
+    // setTimeout(() => {
+    //   const wrapper = document.querySelector('.wrapper-box');
+    //   const [first, last] = wrapper.children;
+    //   // 创建一个临时元素
+    //   const tempP = document.createElement('p');
+    //   tempP.innerText = '2. JavaSript';
+    //   // 在第一个元素 afterend 插入 临时元素
+    //   first.insertAdjacentElement('afterend', tempP);
+    // }, 1000);
+
+    const wrapper = document.querySelector('.wrapper-box');
+    const attribute = wrapper.getAttribute('style');
+
+    function handlerClick(ev) {
+      const temp = ev.getAttribute('onClick');
+      console.log('🚀  -> file: index.html -> line 32 -> temp', temp);
+    }
+
+    const table = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    table.appendChild(tbody);
+    table.border = 1;
+    table.width = '200px';
+    tbody.insertRow(0);
+    tbody.rows[0].insertCell(0);
+    tbody.rows[0].cells[0].innerText = '123123';
+
+    document.body.append(table);
+
+    const observer = new MutationObserver(() => {
+      console.log('🚩  ->  file: index.html -> line 50', '节点发生变化');
+    });
+    observer.observe(wrapper, { attributes: true });
+
+    setTimeout(() => {
+      wrapper.id = 'new_id';
+    }, 2000);
+  </script>
+</html>

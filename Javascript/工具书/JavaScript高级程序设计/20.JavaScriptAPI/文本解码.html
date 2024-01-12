@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input type="file" id="files-list" />
+    <div id="output"></div>
+    <div id="progress"></div>
+    <script>
+      const worker = new Worker(
+        'http://192.168.0.168:8080/JavaScript%E9%AB%98%E7%BA%A7%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/20.JavaScriptAPI/worker.js'
+      );
+
+      let filesList = document.getElementById('files-list');
+
+      filesList.addEventListener('change', event => {
+        let info = '',
+          output = document.getElementById('output'),
+          progress = document.getElementById('progress'),
+          files = event.target.files,
+          type = 'default',
+          reader = new FileReader();
+
+        worker.postMessage(files);
+
+        worker.onmessage = ev => {
+          html = `<img src="${ev.data}">`;
+          output.innerHTML = html;
+        };
+        // if (/image/.test(files[0].type)) {
+        //   reader.readAsDataURL(files[0]);
+        //   type = 'image';
+        // } else {
+        //   reader.readAsText(files[0]);
+        //   type = 'text';
+        // }
+
+        // reader.onerror = function () {
+        //   output.innerHTML =
+        //     'Could not read file, error code is ' + reader.error.code;
+        // };
+
+        // reader.onprogress = function (event) {
+        //   if (event.lengthComputable) {
+        //     progress.innerHTML = `${event.loaded}/${event.total}`;
+        //   }
+        // };
+
+        // reader.onload = function () {
+        //   let html = '';
+        //   switch (type) {
+        //     case 'image':
+        //       html = `<img src="${reader.result}">`;
+        //       break;
+        //     case 'text':
+        //       html = reader.result;
+        //       break;
+        //   }
+        //   output.innerHTML = html;
+        // };
+      });
+    </script>
+  </body>
+</html>

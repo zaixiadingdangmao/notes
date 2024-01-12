@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form method="post" id="myForm">
+      <ul>
+        <li><input type="radio" name="color" value="red" />Red</li>
+        <li><input type="radio" name="color" value="green" />Green</li>
+        <li><input type="radio" name="color" value="blue" />Blue</li>
+      </ul>
+    </form>
+
+    <input type="text" name="" id="inputText" value="nihao，shijie" />
+
+    <input type="text" id="inputNumber" value="zhangxuelong" />
+  </body>
+
+  <script>
+    const inputText = document.querySelector('#inputText');
+    inputText.addEventListener('focus', () => {
+      inputText.select(1, 2);
+    });
+
+    inputText.addEventListener('select', ev => {
+      const text = getSelectedText(ev.target);
+    });
+
+    function getSelectedText(textbox) {
+      return textbox.value.substring(textbox.selectionStart, textbox.selectionEnd);
+    }
+
+    inputText.setSelectionRange(0, 5);
+
+    const inputNumber = document.querySelector('#inputNumber');
+
+    // inputNumber.addEventListener('keypress', ev => {
+    //   if (!/\d/.test(String.fromCharCode(ev.charCode)) && ev.charCode > 9) {
+    //     ev.preventDefault();
+    //   }
+    // });
+
+    inputNumber.addEventListener('copy', ev => {
+      // console.log(ev.currentTarget);
+      const clipboardData = ev.clipboardData;
+      clipboardData.setData('text/plain', '123');
+      console.log(clipboardData);
+    });
+  </script>
+</html>

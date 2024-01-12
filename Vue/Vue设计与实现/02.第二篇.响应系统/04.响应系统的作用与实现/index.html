@@ -1,0 +1,1099 @@
+<body>
+  <div id="div1"></div>
+  <div id="div2"></div>
+</body>
+
+<!-- <script>
+  // 1
+  function effect() {
+    document.body.innerHTML = 'hello vue3';
+  }
+</script> -->
+
+<!-- <script>
+  // 2
+  const bucket = new Set();
+
+  const data = { text: '' };
+
+  const obj = new Proxy(data, {
+    get(target, key) {
+      bucket.add(effect);
+      return target[key]
+    },
+
+    set(target, key, newValue) {
+      target[key] = newValue
+      bucket.forEach(fn => fn());
+
+      return true
+    }
+  })
+
+
+  function effect() {
+    document.body.innerHTML = obj.text
+  }
+
+  effect()
+
+
+  setTimeout(() => {
+    obj.text = 'hello vue3'
+  }, 1000);
+</script> -->
+
+<!-- <script>
+  // 3
+  const bucket = new WeakMap();
+  const data = { text1: '', text2: '' };
+
+  const obj = new Proxy(data, {
+    get(target, key) {
+      track(target, key);
+
+      return target[key];
+    },
+
+    set(target, key, newValue) {
+      // 设置属性
+      target[key] = newValue;
+
+      trigger(target, key);
+      return true;
+    }
+  });
+
+  // 在 get 内部跟踪变化
+  function track(target, key) {
+    if (!activeEffect) return target[key];
+
+    // 根据 target 从“桶”中取的 depsMap，它也是一个 Map 类型： key -> effects
+    let depsMap = bucket.get(target);
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()));
+    }
+
+    // 再根据 key 从 depsMap 中取得 deps，它是一个 Set 类型
+    let deps = depsMap.get(key);
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()));
+    }
+
+    // 最后将当前激活的函数添加到“桶”中
+    deps.add(activeEffect);
+  }
+
+  // 在 set 内部触发变化
+  function trigger(target, key) {
+    const depsMap = bucket.get(target);
+    if (!depsMap) return;
+
+    const effects = depsMap.get(key);
+
+    effects && effects.forEach(fn => fn());
+  }
+
+  // 用一个全局变量存放被注册的副作用函数
+  let activeEffect;
+
+  // effect 用来注册副作用函数
+  function effect(fn) {
+    // 保存副作用函数
+    const effectFn = () => {
+      activeEffect = effectFn;
+      fn();
+    };
+
+    effectFn();
+  }
+
+  effect(() => {
+    console.log('🚀  -> file: index.html -> line 113 -> obj.text1');
+    document.querySelector('#div1').innerHTML = obj.text1;
+  });
+
+  effect(() => {
+    console.log('🚀  -> file: index.html -> line 109 -> obj.text2');
+    document.querySelector('#div2').innerHTML = obj.text2;
+  });
+</script> -->
+
+<!-- <script>
+  // 4
+  // 存储副作用函数的桶
+  const bucket = new WeakMap();
+
+  // 原始数据
+  // const data = { ok: true, text: 'hello world' };
+  const data = { text1: '', text2: '' };
+
+  // 对原始数据的代理
+  const obj = new Proxy(data, {
+    // 拦截读取操作
+    get(target, key) {
+      // 将副作用函数 activeEffect 添加到存储副作用函数的桶中
+      track(target, key);
+      // 返回属性值
+      return target[key];
+    },
+    // 拦截设置操作
+    set(target, key, newVal) {
+      // 设置属性值
+      target[key] = newVal;
+      // 把副作用函数从桶里取出并执行
+      trigger(target, key);
+    }
+  });
+
+  // 在 get 内部跟踪变化
+  function track(target, key) {
+    if (!activeEffect) return target[key];
+
+    // 根据 target 从“桶”中取的 depsMap，它也是一个 Map 类型： key -> effects
+    let depsMap = bucket.get(target);
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()));
+    }
+
+    // 再根据 key 从 depsMap 中取得 deps，它是一个 Set 类型
+    let deps = depsMap.get(key);
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()));
+    }
+
+    // 最后将当前激活的函数添加到“桶”中
+    deps.add(activeEffect);
+
+    // 将其添加到 activeEffect.deps 数组中
+    activeEffect.deps.push(deps);
+  }
+
+  // 在 set 内部触发变化
+  function trigger(target, key) {
+    const depsMap = bucket.get(target);
+    if (!depsMap) return;
+
+    const effects = depsMap.get(key);
+
+    const effectsToRun = new Set(effects);
+    // effects && effects.forEach(fn => fn());
+    effects && effectsToRun.forEach(fn => fn());
+  }
+
+  // 用一个全局变量存放被注册的副作用函数
+  let activeEffect;
+  // effect 用来注册副作用函数
+  function effect(fn) {
+    const effectFn = () => {
+      cleanup(effectFn);
+      // 保存副作用函数
+      activeEffect = effectFn;
+
+      fn();
+    };
+
+    effectFn.deps = [];
+
+    effectFn();
+  }
+
+  function cleanup(effectFn) {
+    for (let i = 0; i < effectFn.deps.length; i++) {
+      const deps = effectFn.deps[i];
+      deps.delete(effectFn);
+    }
+
+    effectFn.deps.length = 0;
+  }
+
+  effect(() => {
+    console.log('effect run');
+    document.body.innerText = obj.ok ? obj.text : 'not';
+  });
+
+  setTimeout(() => {
+    obj.ok = false;
+    setTimeout(() => {
+      obj.text = 'hello vue3';
+    }, 1000);
+  }, 1000);
+</script> -->
+
+<!-- <script>
+  // 5
+  // 存储副作用函数的桶
+  const bucket = new WeakMap();
+
+  // 原始数据
+  const data = { foo: true, bar: true };
+
+  // 对原始数据的代理
+  const obj = new Proxy(data, {
+    // 拦截读取操作
+    get(target, key) {
+      // 将副作用函数 activeEffect 添加到存储副作用函数的桶中
+      track(target, key);
+      // 返回属性值
+      return target[key];
+    },
+    // 拦截设置操作
+    set(target, key, newVal) {
+      // 设置属性值
+      target[key] = newVal;
+      // 把副作用函数从桶里取出并执行
+      trigger(target, key);
+    }
+  });
+
+  // 在 get 内部跟踪变化
+  function track(target, key) {
+    if (!activeEffect) return target[key];
+
+    // 根据 target 从“桶”中取的 depsMap，它也是一个 Map 类型： key -> effects
+    let depsMap = bucket.get(target);
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()));
+    }
+
+    // 再根据 key 从 depsMap 中取得 deps，它是一个 Set 类型
+    let deps = depsMap.get(key);
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()));
+    }
+
+    // 最后将当前激活的函数添加到“桶”中
+    deps.add(activeEffect);
+
+    // 将其添加到 activeEffect.deps 数组中
+    activeEffect.deps.push(deps);
+  }
+
+  // 在 set 内部触发变化
+  function trigger(target, key) {
+    const depsMap = bucket.get(target);
+    if (!depsMap) return;
+
+    const effects = depsMap.get(key);
+
+    const effectsToRun = new Set(effects);
+    // effects && effects.forEach(fn => fn());
+    effects && effectsToRun.forEach(fn => fn());
+  }
+
+  // 用一个全局变量存放被注册的副作用函数
+  let activeEffect;
+  // 副作用函数栈
+  const effectStack = [];
+  // effect 用来注册副作用函数
+  function effect(fn) {
+    const effectFn = () => {
+      cleanup(effectFn);
+      // 保存副作用函数
+      activeEffect = effectFn;
+      // 入栈
+      effectStack.push(effectFn);
+      fn();
+      // 当前函数执行完毕后，将当前副作用函数弹出栈，并把 activeEffect 复原回之前的值
+      effectStack.pop();
+      activeEffect = effectStack[effectStack.length - 1];
+    };
+    effectFn.deps = [];
+    effectFn();
+  }
+
+  function cleanup(effectFn) {
+    for (let i = 0; i < effectFn.deps.length; i++) {
+      const deps = effectFn.deps[i];
+      deps.delete(effectFn);
+    }
+
+    effectFn.deps.length = 0;
+  }
+
+  let temp1, temp2;
+
+  effect(function effectFn1() {
+    console.log('effectFn1 执行');
+    effect(function effectFn2() {
+      console.log('effectFn2 执行');
+      temp2 = obj.bar;
+    });
+    temp1 = obj.foo;
+  });
+</script> -->
+
+<!-- <script>
+  // 存储副作用函数的桶
+  const bucket = new WeakMap();
+
+  // 原始数据
+  const data = { foo: 1 };
+
+  // 对原始数据的代理
+  const obj = new Proxy(data, {
+    // 拦截读取操作
+    get(target, key) {
+      // 将副作用函数 activeEffect 添加到存储副作用函数的桶中
+      track(target, key);
+      // 返回属性值
+      return target[key];
+    },
+    // 拦截设置操作
+    set(target, key, newVal) {
+      // 设置属性值
+      target[key] = newVal;
+      // 把副作用函数从桶里取出并执行
+      trigger(target, key);
+    }
+  });
+
+  // 在 get 内部跟踪变化
+  function track(target, key) {
+    if (!activeEffect) return target[key];
+
+    // 根据 target 从“桶”中取的 depsMap，它也是一个 Map 类型： key -> effects
+    let depsMap = bucket.get(target);
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()));
+    }
+
+    // 再根据 key 从 depsMap 中取得 deps，它是一个 Set 类型
+    let deps = depsMap.get(key);
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()));
+    }
+
+    // 最后将当前激活的函数添加到“桶”中
+    deps.add(activeEffect);
+
+    // 将其添加到 activeEffect.deps 数组中
+    activeEffect.deps.push(deps);
+  }
+
+  // 在 set 内部触发变化
+  function trigger(target, key) {
+    const depsMap = bucket.get(target);
+    if (!depsMap) return;
+
+    const effects = depsMap.get(key);
+
+    const effectsToRun = new Set();
+
+    effects.forEach(effectFn => {
+      if (effectFn !== activeEffect) {
+        effectsToRun.add(effectFn);
+      }
+    });
+    effectsToRun && effectsToRun.forEach(fn => fn());
+  }
+
+  // 用一个全局变量存放被注册的副作用函数
+  let activeEffect;
+  // 副作用函数栈
+  const effectStack = [];
+  // effect 用来注册副作用函数
+  function effect(fn) {
+    const effectFn = () => {
+      cleanup(effectFn);
+      // 保存副作用函数
+      activeEffect = effectFn;
+      // 入栈
+      effectStack.push(effectFn);
+      fn();
+      // 当前函数执行完毕后，将当前副作用函数弹出栈，并把 activeEffect 复原回之前的值
+      effectStack.pop();
+      activeEffect = effectStack[effectStack.length - 1];
+    };
+    effectFn.deps = [];
+    effectFn();
+  }
+
+  function cleanup(effectFn) {
+    for (let i = 0; i < effectFn.deps.length; i++) {
+      const deps = effectFn.deps[i];
+      deps.delete(effectFn);
+    }
+
+    effectFn.deps.length = 0;
+  }
+
+  effect(function effectFn1() {
+    console.log('effectFn1 执行');
+    obj.foo++;
+  });
+</script> -->
+
+<!-- <script>
+  // 7
+
+  // 存储副作用函数的桶
+  const bucket = new WeakMap();
+
+  // 原始数据
+  const data = { foo: 1 };
+
+  // 对原始数据的代理
+  const obj = new Proxy(data, {
+    // 拦截读取操作
+    get(target, key) {
+      // 将副作用函数 activeEffect 添加到存储副作用函数的桶中
+      track(target, key);
+      // 返回属性值
+      return target[key];
+    },
+    // 拦截设置操作
+    set(target, key, newVal) {
+      // 设置属性值
+      target[key] = newVal;
+      // 把副作用函数从桶里取出并执行
+      trigger(target, key);
+    }
+  });
+
+  // 在 get 内部跟踪变化
+  function track(target, key) {
+    if (!activeEffect) return target[key];
+
+    // 根据 target 从“桶”中取的 depsMap，它也是一个 Map 类型： key -> effects
+    let depsMap = bucket.get(target);
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()));
+    }
+
+    // 再根据 key 从 depsMap 中取得 deps，它是一个 Set 类型
+    let deps = depsMap.get(key);
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()));
+    }
+
+    // 最后将当前激活的函数添加到“桶”中
+    deps.add(activeEffect);
+
+    // 将其添加到 activeEffect.deps 数组中
+    activeEffect.deps.push(deps);
+  }
+
+  // 在 set 内部触发变化
+  function trigger(target, key) {
+    const depsMap = bucket.get(target);
+    if (!depsMap) return;
+
+    const effects = depsMap.get(key);
+
+    const effectsToRun = new Set();
+
+    effects.forEach(effectFn => {
+      if (effectFn !== activeEffect) {
+        effectsToRun.add(effectFn);
+      }
+    });
+
+    effectsToRun.forEach(effectFn => {
+      if (effectFn.options.scheduler) {
+        effectFn.options.scheduler(effectFn);
+      } else {
+        effectFn();
+      }
+    });
+  }
+
+  // 用一个全局变量存放被注册的副作用函数
+  let activeEffect;
+  // 副作用函数栈
+  const effectStack = [];
+  // effect 用来注册副作用函数
+  function effect(fn, options = {}) {
+    const effectFn = () => {
+      cleanup(effectFn);
+      // 保存副作用函数
+      activeEffect = effectFn;
+      // 入栈
+      effectStack.push(effectFn);
+      fn();
+      // 当前函数执行完毕后，将当前副作用函数弹出栈，并把 activeEffect 复原回之前的值
+      effectStack.pop();
+      activeEffect = effectStack[effectStack.length - 1];
+    };
+    effectFn.options = options;
+    effectFn.deps = [];
+    effectFn();
+  }
+
+  function cleanup(effectFn) {
+    for (let i = 0; i < effectFn.deps.length; i++) {
+      const deps = effectFn.deps[i];
+      deps.delete(effectFn);
+    }
+
+    effectFn.deps.length = 0;
+  }
+
+  // 防抖
+  const jobQueue = new Set();
+  const p = Promise.resolve();
+
+  let isFlushing = false;
+  function flushJob() {
+    if (isFlushing) return;
+    isFlushing = true;
+
+    p.then(() => {
+      jobQueue.forEach(job => job());
+    }).finally(() => {
+      isFlushing = false;
+    });
+  }
+
+  effect(
+    () => {
+      console.log(obj.foo);
+    },
+    {
+      scheduler(fn) {
+        jobQueue.add(fn);
+        flushJob();
+      }
+    }
+  );
+
+  // 连续触发
+  obj.foo++;
+  obj.foo++;
+  obj.foo++;
+  obj.foo++;
+  obj.foo++;
+  obj.foo++;
+  obj.foo++;
+</script> -->
+
+<!-- <script>
+  // 8
+
+  // 存储副作用函数的桶
+  const bucket = new WeakMap();
+
+  // 原始数据
+  const data = { foo: 1, bar: 2 };
+
+  // 对原始数据的代理
+  const obj = new Proxy(data, {
+    // 拦截读取操作
+    get(target, key) {
+      // 将副作用函数 activeEffect 添加到存储副作用函数的桶中
+      track(target, key);
+      // 返回属性值
+      return target[key];
+    },
+    // 拦截设置操作
+    set(target, key, newVal) {
+      // 设置属性值
+      target[key] = newVal;
+      // 把副作用函数从桶里取出并执行
+      trigger(target, key);
+    }
+  });
+
+  // 在 get 内部跟踪变化
+  function track(target, key) {
+    if (!activeEffect) return ;
+
+    // 根据 target 从“桶”中取的 depsMap，它也是一个 Map 类型： key -> effects
+    let depsMap = bucket.get(target);
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()));
+    }
+
+    // 再根据 key 从 depsMap 中取得 deps，它是一个 Set 类型
+    let deps = depsMap.get(key);
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()));
+    }
+
+    // 最后将当前激活的函数添加到“桶”中
+    deps.add(activeEffect);
+
+    // 将其添加到 activeEffect.deps 数组中
+    activeEffect.deps.push(deps);
+  }
+
+  // 在 set 内部触发变化
+  function trigger(target, key) {
+    const depsMap = bucket.get(target);
+    if (!depsMap) return;
+
+    const effects = depsMap.get(key);
+
+    const effectsToRun = new Set();
+
+    effects.forEach(effectFn => {
+      if (effectFn !== activeEffect) {
+        effectsToRun.add(effectFn);
+      }
+    });
+
+    effectsToRun.forEach(effectFn => {
+      if (effectFn.options.scheduler) {
+        effectFn.options.scheduler(effectFn);
+      } else {
+        effectFn();
+      }
+    });
+  }
+
+  // 用一个全局变量存放被注册的副作用函数
+  let activeEffect;
+  // 副作用函数栈
+  const effectStack = [];
+  // effect 用来注册副作用函数
+  function effect(fn, options = {}) {
+    const effectFn = () => {
+      cleanup(effectFn);
+      // 保存副作用函数
+      activeEffect = effectFn;
+      // 入栈
+      effectStack.push(effectFn);
+      const res = fn();
+      // 当前函数执行完毕后，将当前副作用函数弹出栈，并把 activeEffect 复原回之前的值
+      effectStack.pop();
+      activeEffect = effectStack[effectStack.length - 1];
+
+      return res;
+    };
+
+    effectFn.options = options;
+    effectFn.deps = [];
+    if (!options.lazy) {
+      effectFn();
+    }
+
+    return effectFn;
+  }
+
+  function cleanup(effectFn) {
+    for (let i = 0; i < effectFn.deps.length; i++) {
+      const deps = effectFn.deps[i];
+      deps.delete(effectFn);
+    }
+
+    effectFn.deps.length = 0;
+  }
+
+  // 防抖
+  const jobQueue = new Set();
+  const p = Promise.resolve();
+
+  let isFlushing = false;
+  function flushJob() {
+    if (isFlushing) return;
+    isFlushing = true;
+
+    p.then(() => {
+      jobQueue.forEach(job => job());
+    }).finally(() => {
+      isFlushing = false;
+    });
+  }
+
+  let effectFn = effect(
+    () => {
+      console.log(obj.foo);
+    },
+    {
+      lazy: true,
+      scheduler(fn) {
+        jobQueue.add(fn);
+        flushJob();
+      }
+    }
+  );
+
+  function computed(getter) {
+    let value;
+    let dirty = true;
+
+    const effectFn = effect(getter, {
+      lazy: true,
+      scheduler() {
+        if (!dirty) {
+          dirty = true;
+          trigger(obj, 'value');
+        }
+      }
+    });
+
+    const obj = {
+      get value() {
+        if (dirty) {
+          value = effectFn();
+          dirty = false;
+        }
+        track(obj, 'value');
+        return value;
+      }
+    };
+
+    return obj;
+  }
+
+  const sumRes = computed(() => obj.foo + obj.bar);
+
+  console.log(sumRes.value);
+  console.log(sumRes.value);
+
+  obj.foo++;
+
+  console.log(sumRes.value);
+
+  effect(() => {
+    console.log(sumRes.value);
+  });
+
+  obj.foo++;
+</script> -->
+
+<!-- <script>
+  // 9
+
+  // 存储副作用函数的桶
+  const bucket = new WeakMap();
+
+  // 原始数据
+  const data = { foo: 1, bar: 2 };
+
+  // 对原始数据的代理
+  const obj = new Proxy(data, {
+    // 拦截读取操作
+    get(target, key) {
+      // 将副作用函数 activeEffect 添加到存储副作用函数的桶中
+      track(target, key);
+      // 返回属性值
+      return target[key];
+    },
+    // 拦截设置操作
+    set(target, key, newVal) {
+      // 设置属性值
+      target[key] = newVal;
+      // 把副作用函数从桶里取出并执行
+      trigger(target, key);
+    }
+  });
+
+  // 在 get 内部跟踪变化
+  function track(target, key) {
+    if (!activeEffect) return;
+
+    // 根据 target 从“桶”中取的 depsMap，它也是一个 Map 类型： key -> effects
+    let depsMap = bucket.get(target);
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()));
+    }
+
+    // 再根据 key 从 depsMap 中取得 deps，它是一个 Set 类型
+    let deps = depsMap.get(key);
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()));
+    }
+
+    // 最后将当前激活的函数添加到“桶”中
+    deps.add(activeEffect);
+
+    // 将其添加到 activeEffect.deps 数组中
+    activeEffect.deps.push(deps);
+  }
+
+  // 在 set 内部触发变化
+  function trigger(target, key) {
+    const depsMap = bucket.get(target);
+    if (!depsMap) return;
+
+    const effects = depsMap.get(key);
+
+    const effectsToRun = new Set();
+
+    effects.forEach(effectFn => {
+      if (effectFn !== activeEffect) {
+        effectsToRun.add(effectFn);
+      }
+    });
+
+    effectsToRun.forEach(effectFn => {
+      if (effectFn.options.scheduler) {
+        effectFn.options.scheduler(effectFn);
+      } else {
+        effectFn();
+      }
+    });
+  }
+
+  // 用一个全局变量存放被注册的副作用函数
+  let activeEffect;
+  // 副作用函数栈
+  const effectStack = [];
+  // effect 用来注册副作用函数
+  function effect(fn, options = {}) {
+    const effectFn = () => {
+      cleanup(effectFn);
+      // 保存副作用函数
+      activeEffect = effectFn;
+      // 入栈
+      effectStack.push(effectFn);
+      const res = fn();
+      // 当前函数执行完毕后，将当前副作用函数弹出栈，并把 activeEffect 复原回之前的值
+      effectStack.pop();
+      activeEffect = effectStack[effectStack.length - 1];
+
+      return res;
+    };
+
+    effectFn.options = options;
+    effectFn.deps = [];
+    if (!options.lazy) {
+      effectFn();
+    }
+
+    return effectFn;
+  }
+
+  function cleanup(effectFn) {
+    for (let i = 0; i < effectFn.deps.length; i++) {
+      const deps = effectFn.deps[i];
+      deps.delete(effectFn);
+    }
+
+    effectFn.deps.length = 0;
+  }
+
+  function traverse(value, seen = new Set()) {
+    if (typeof value !== 'object' || value === null || seen.has(value)) return;
+
+    seen.add(value);
+
+    for (const k in value) {
+      // 读取对象每一个值，并且递归调用
+      traverse(value[k], seen);
+    }
+
+    return value;
+  }
+
+  function watch(source, cd) {
+    let getter;
+
+    if (typeof source === 'function') {
+      getter = source;
+    } else {
+      getter = () => traverse(source);
+    }
+
+    let oldValue, newValue;
+
+    const effectFn = effect(() => getter(), {
+      lazy: true,
+      scheduler() {
+        newValue = effectFn();
+        cd(oldValue, newValue);
+        oldValue = newValue;
+      }
+    });
+
+    oldValue = effectFn();
+  }
+
+  watch(
+    () => obj.foo,
+    (oldValue, newValue) => {
+    }
+  );
+
+  obj.foo++;
+</script> -->
+
+<script>
+  // 10
+  // 存储副作用函数的桶
+  const bucket = new WeakMap();
+
+  // 原始数据
+  const data = { foo: 1, bar: 2 };
+
+  // 对原始数据的代理
+  const obj = new Proxy(data, {
+    // 拦截读取操作
+    get(target, key) {
+      // 将副作用函数 activeEffect 添加到存储副作用函数的桶中
+      track(target, key);
+      // 返回属性值
+      return target[key];
+    },
+    // 拦截设置操作
+    set(target, key, newVal) {
+      // 设置属性值
+      target[key] = newVal;
+      // 把副作用函数从桶里取出并执行
+      trigger(target, key);
+    }
+  });
+
+  // 在 get 内部跟踪变化
+  function track(target, key) {
+    if (!activeEffect) return;
+
+    // 根据 target 从“桶”中取的 depsMap，它也是一个 Map 类型： key -> effects
+    let depsMap = bucket.get(target);
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()));
+    }
+
+    // 再根据 key 从 depsMap 中取得 deps，它是一个 Set 类型
+    let deps = depsMap.get(key);
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()));
+    }
+
+    // 最后将当前激活的函数添加到“桶”中
+    deps.add(activeEffect);
+
+    // 将其添加到 activeEffect.deps 数组中
+    activeEffect.deps.push(deps);
+  }
+
+  // 在 set 内部触发变化
+  function trigger(target, key) {
+    const depsMap = bucket.get(target);
+    if (!depsMap) return;
+
+    const effects = depsMap.get(key);
+
+    const effectsToRun = new Set();
+
+    effects.forEach(effectFn => {
+      if (effectFn !== activeEffect) {
+        effectsToRun.add(effectFn);
+      }
+    });
+
+    effectsToRun.forEach(effectFn => {
+      if (effectFn.options.scheduler) {
+        effectFn.options.scheduler(effectFn);
+      } else {
+        effectFn();
+      }
+    });
+  }
+
+  // 用一个全局变量存放被注册的副作用函数
+  let activeEffect;
+  // 副作用函数栈
+  const effectStack = [];
+  // effect 用来注册副作用函数
+  function effect(fn, options = {}) {
+    const effectFn = () => {
+      cleanup(effectFn);
+      // 保存副作用函数
+      activeEffect = effectFn;
+      // 入栈
+      effectStack.push(effectFn);
+      const res = fn();
+      // 当前函数执行完毕后，将当前副作用函数弹出栈，并把 activeEffect 复原回之前的值
+      effectStack.pop();
+      activeEffect = effectStack[effectStack.length - 1];
+
+      return res;
+    };
+
+    effectFn.options = options;
+    effectFn.deps = [];
+    if (!options.lazy) {
+      effectFn();
+    }
+
+    return effectFn;
+  }
+
+  function cleanup(effectFn) {
+    for (let i = 0; i < effectFn.deps.length; i++) {
+      const deps = effectFn.deps[i];
+      deps.delete(effectFn);
+    }
+
+    effectFn.deps.length = 0;
+  }
+
+  function traverse(value, seen = new Set()) {
+    if (typeof value !== 'object' || value === null || seen.has(value)) return;
+
+    seen.add(value);
+
+    for (const k in value) {
+      // 读取对象每一个值，并且递归调用
+      traverse(value[k], seen);
+    }
+
+    return value;
+  }
+
+  function watch(source, cd, options = {}) {
+    let getter;
+
+    if (typeof source === 'function') {
+      getter = source;
+    } else {
+      getter = () => traverse(source);
+    }
+
+    let oldValue, newValue;
+
+    let cleanup;
+
+    function onInvalidate(fn) {
+      cleanup = fn;
+    }
+
+    const job = () => {
+      newValue = effectFn();
+      if (cleanup) {
+        cleanup();
+      }
+      cd(oldValue, newValue, onInvalidate);
+      oldValue = newValue;
+    };
+
+    const effectFn = effect(() => getter(), {
+      lazy: true,
+      scheduler: () => {
+        if (options.flush === 'post') {
+          const p = Promise.resolve();
+          p.then(job);
+        } else {
+          job();
+        }
+      }
+    });
+
+    if (options.immediate) {
+      job();
+    } else {
+      oldValue = effectFn();
+    }
+  }
+
+  watch(
+    () => obj,
+    async (oldValue, newValue, onInvalidate) => {
+      console.log('🚀  -> file: index.html -> line 1084 -> newValue', newValue);
+      let expored = false;
+
+      onInvalidate(() => {
+        expored = true;
+      });
+
+      const res = await fetch('./04.响应系统的作用与实现.md');
+      
+      if (!expored) {
+        finalData = res;
+      }
+    }
+  );
+  obj.foo++;
+</script>

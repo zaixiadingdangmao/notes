@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>blue elephant</title>
+    <style>
+      .but {
+        float: left;
+        margin-right: 20px;
+      }
+      form {
+        width: 300px;
+      }
+      .inp {
+        width: 250px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 示例 -->
+    <fieldset style="width: 300px">
+      <legend>基于indexedDB的雇员信息查询</legend>
+      <p>输入信息</p>
+      <p>雇员id</p>
+      <input type="text" id="id" class="inp" />
+      <p>姓名</p>
+      <input type="text" id="name" class="inp" />
+      <p>年龄</p>
+      <input type="text" id="age" class="inp" />
+      <p>所属部门</p>
+      <input type="text" id="sector" class="inp" />
+      <p>入职日期</p>
+      <input type="text" id="date" class="inp" />
+      <p>职位</p>
+      <input type="text" id="position" class="inp" />
+      <p>新资</p>
+      <input type="text" id="salary" class="inp" />
+
+      <br />
+      <br />
+      <input type="button" name="insert" value="增" class="but" onclick="add()" />
+      <input type="button" name="del" value="删" class="but" onclick="del()" />
+      <input type="button" name="update" value="改" class="but" onclick="update()" />
+      <input type="button" name="select" value="查" class="but" onclick="get()" />
+      <input
+        type="button"
+        name="select"
+        value="姓名查询"
+        class="but"
+        onclick="fromname()"
+      />
+      <input
+        type="button"
+        name="select"
+        value="部门查询"
+        class="but"
+        onclick="fromsector()"
+      />
+      <input type="button" name="select" value="data" class="but" onclick="aa()" />
+      <br />
+      <!-- 存放查询结果 -->
+      <div id="test"></div>
+    </fieldset>
+
+    <script>
+      // 是存储在本地的NoSQL数据库,可以直接存储js对象,有版本的概念,要修改数据库结构只能通过升级数据库版本完成，存储空间一般不少于250MB,没有上限
+      //支持索引,事务处理和健壮的查询功能,兼容所有主流浏览器，每个域名下都可以新建任意多个数据库
+      // indexedDB数据库操作的步骤：1\打开数据库,获取数据库对象2\开启一个事务3\获取需要操作的对象仓库4\执行数据增删改查
+      // 对indexedDB数据库的操作,通过window的indexedDB对象来执行
+      // indexedDB数据操作都要在事务中完成，事务可以保证数据的一致性和完整性
+      // 打开数据库,不存在则创建
+      // let request = indexedDB.open(dbName,dbVersion);
+      // dbName:字符串,表示数据库的名字
+      // dbVersion:整数,表示数据库的版本
+      // 异步API,返回一个IDBRequest对象,通过三种事件:error\success\upgradeneeded
+      // 打开数据库,不存在则创建
+      let request = indexedDB.open('blue', 1);
+      let db;
+      // 创建成功的回调函数
+      request.onsuccess = function (e) {
+        // 通过e拿到数据库对象
+        db = e.target.result;
+        console.log('数据库打开成功');
+      };
+      // 数据库升级事件(第一次创建数据库或者版本升级时触发)
+      // 不能手动触发，需要触发时更改版本号或是新建数据库
+      // 对数据库结构或表的创建修改都应该在该事件中完成,indexedDB不允许数据库中的对象仓库在同一版本中发生变化
+      request.onupgradeneeded = function (e) {
+        console.log('新建数据库或数据库升级');
+        // 将新的数据库对象赋值给db
+        db = e.target.result;
+        let sotre;
+        // 判断是否已经存值该表（对象仓库）
+        // 每个数据库包含若干个对象仓库(表)，对象仓库里存储的是js对象
+        if (!db.objectStoreNames.contains('employee')) {
+          // 设置主键
+          // 主键用来建立默认的索引,必须是唯一的
+          let item = {
+            keyPath: 'id', //主键
+            autoIncrement: false //是否自增
+          };
+          // 创建对象仓库
+          // 参数1指定对象仓库名称,参数2是个js对象,指定主键
+          // 对象仓库保存的是数据记录,类似于关系型数据库的行,但是只有主键和数据两部分
+          console.log('此处创建对象仓库');
+          store = db.createObjectStore('employee', item);
+          // 创建索引，为了加速数据的检索，为不同的属性建立索引，只有加了索引的属性才能进行查询
+          // 必须在upgradeneeded里完成,在indexedDB数据库中,只能对被索引的属性值进行检索
+          // 参数:索引名称\索引所在的属性\配置对象(说明改属性是否包含重复的值)
+          store.createIndex('nameIndex', 'name', { unique: false });
+          store.createIndex('sectorIndex', 'sector', { unique: true });
+        }
+      };
+      // 创建失败的回调函数
+      request.onerror = function (e) {
+        console.log('打开失败', e);
+      };
+      // 获取表单的值
+      let id;
+      let name;
+      let age;
+      let sector;
+      let date;
+      let position;
+      let salary;
+      function val() {
+        id = document.getElementById('id').value;
+        name = document.getElementById('name').value;
+        age = document.getElementById('age').value;
+        sector = document.getElementById('sector').value;
+        date = document.getElementById('date').value;
+        position = document.getElementById('position').value;
+        salary = document.getElementById('salary').value;
+        // 赋值给一个对象
+        data = {
+          id: id,
+          name: name,
+          age: age,
+          sector: sector,
+          date: date,
+          position: position,
+          salary: salary
+        };
+        return data;
+      }
+      // 新增
+      function add() {
+        // 获取表单的值
+        val();
+        // 开启一个事务
+        let tx = db.transaction('employee', 'readwrite');
+        // 获取对象仓库
+        let store = tx.objectStore('employee');
+        // 执行数据操作(根据主键更新记录)
+        let addReq = store.add(data);
+        addReq.onsuccess = function () {
+          alert('新增数据成功');
+        };
+        addReq.onerror = function () {
+          alert('新增失败');
+        };
+      }
+      // 更新
+      function update() {
+        val();
+        // 开启一个事务
+        let tx = db.transaction('employee', 'readwrite');
+        // 获取对象仓库
+        let store = tx.objectStore('employee');
+        // 执行数据操作(根据主键更新记录)
+        //更新必须要有主键
+        let putReq = store.put(data);
+        putReq.onsuccess = function () {
+          alert('修改数据成功');
+        };
+        putReq.onerror = function () {
+          alter('修改失败');
+        };
+      }
+      // 删除
+      function del() {
+        val();
+        // 开启一个事务
+        let tx = db.transaction('employee', 'readwrite');
+        // 获取对象仓库
+        let store = tx.objectStore('employee');
+        // 执行数据操作(根据主键更新记录)
+        let delReq = store.delete(id);
+        delReq.onsuccess = function () {
+          alert('删除数据成功');
+        };
+        delReq.onerror = function () {
+          alter('删除失败');
+        };
+      }
+      function get() {
+        // 开启一个事务
+        let tx = db.transaction('employee', 'readwrite');
+        // 获取对象仓库
+        let store = tx.objectStore('employee');
+        // 打开游标,可以获取一个区间的数据,通过对象仓库的openCursor方法创建并打开
+        // 在success事件中遍历读取数据
+        let cursorReq = store.openCursor();
+        // 在success事件中遍历读取数据
+        let a = 0;
+        cursorReq.onsuccess = function (e) {
+          console.log('游标开始查询');
+          // 获取游标
+          let cursor = e.target.result;
+          // 判断是否可以获取到游标
+          if (cursor) {
+            // 通过value属性获取对象记录
+            let obj = cursor.value;
+            console.log(obj.id);
+            console.log(obj.name);
+            let dom = document.createElement('p');
+            dom.id = 'a' + a;
+            document.getElementById('test').appendChild(dom);
+            document.getElementById('a' + a).innerHTML =
+              '雇员id:' +
+              obj.id +
+              '姓名:' +
+              obj.name +
+              '年龄' +
+              obj.age +
+              '部门' +
+              obj.sector +
+              '职位' +
+              obj.position +
+              '新资' +
+              obj.salary +
+              '入职日期' +
+              obj.date;
+            a++;
+            // 继续查询下一条数据
+            cursor.continue();
+          } else {
+            console.log('游标数据结束');
+          }
+        };
+      }
+      // 根据名称索引查询
+      function fromname() {
+        val();
+        // 开启一个事务
+        let tx = db.transaction('employee', 'readwrite');
+        // 获取对象仓库
+        let store = tx.objectStore('employee');
+        // 获取索引项
+        let nameIndex = store.index('nameIndex');
+        //根据"name"从索引项中查询
+        let request = nameIndex.get(name);
+        request.onsuccess = function (e) {
+          let result = e.target.result;
+          let dom = document.createElement('p');
+          dom.id = 'fromname';
+          document.getElementById('test').appendChild(dom);
+          document.getElementById('fromname').innerHTML =
+            '雇员id:' +
+            result.id +
+            '姓名:' +
+            result.name +
+            '年龄' +
+            result.age +
+            '部门' +
+            result.sector +
+            '职位' +
+            result.position +
+            '新资' +
+            result.salary +
+            '入职日期' +
+            result.date;
+        };
+      }
+      // 根据部门索引查询
+      function fromsector() {
+        val();
+        // 开启一个事务
+        let tx = db.transaction('employee', 'readwrite');
+        // 获取对象仓库
+        let store = tx.objectStore('employee');
+        let sectorIndex = store.index('sectorIndex');
+        let request = nameIndex.get(sector);
+        request.onsuccess = function (e) {
+          let result = e.target.result;
+          let dom = document.createElement('p');
+          dom.id = 'fromsector';
+          document.getElementById('test').appendChild(dom);
+          document.getElementById('fromsector').innerHTML =
+            '雇员id:' +
+            result.id +
+            '姓名:' +
+            result.name +
+            '年龄' +
+            result.age +
+            '部门' +
+            result.sector +
+            '职位' +
+            result.position +
+            '新资' +
+            result.salary +
+            '入职日期' +
+            result.date;
+        };
+      }
+    </script>
+  </body>
+</html>

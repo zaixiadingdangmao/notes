@@ -1,0 +1,53 @@
+<!-- <html>
+  <body>
+    <div id="div1">我是一个div</div>
+  </body>
+  <script>
+    window.id = 'window';
+
+    document.getElementById('div1').onclick = function () {
+      // alert(this.id);
+      console.log('🚩  -> file: index.html -> line 10 -> ', this);
+      let callback = function () {
+        'use strict';
+        console.log('🚩  -> file: index.html -> line 13 -> ', this);
+      };
+      callback();
+      // callback.call(this);
+    };
+
+  </script>
+</html> -->
+
+<!-- 分割线 -->
+
+<!-- <html>
+  <body>
+    <div id="div1">我是一个 div</div>
+  </body>
+  <script>
+    // document.getElementById = (function (func) {
+    //   return function () {
+    //     return func.apply(document, arguments);
+    //   };
+    // })(document.getElementById);
+
+    // var getId = (function (func) {
+    //   return function () {
+    //     return func.apply(document, arguments);
+    //   };
+    // })(document.getElementById);
+
+    // var div = getId('div1');
+    // console.log('🚀  -> file: index.html:40 -> div', div);
+
+    // var getId = document.getElementById;
+    // getId('div1');
+
+  </script>
+</html> -->
+
+<!-- 分割线 -->
+
+<script>
+</script>
