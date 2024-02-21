@@ -6,3 +6,4 @@
 - 删除行 cmd + del
 - 移动行 option + cmd + `[` 或者 `]`
 - 缩进行 cmd + `[` 或者 `]`
+- 多选 cmd + con + 单击
