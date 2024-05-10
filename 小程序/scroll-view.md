@@ -7,3 +7,12 @@
   -webkit-overflow-scrolling: auto;
 }
 ```
+
+不固定高度使用、基本同 flex overflow-auto, 必须使用 scroll-view 不然 ios 不能滚动
+
+```css
+.wx-scroll-view {
+  flex: 1 0 auto;
+  overflow: auto
+}
+```
