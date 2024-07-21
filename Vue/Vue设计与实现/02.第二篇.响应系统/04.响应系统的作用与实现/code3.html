@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>code3</title>
+  </head>
+  <body>
+    <script>
+      const bucket = new WeakMap();
+      const data = { text: 'hello world' };
+
+      const obj = new Proxy(data, {
+        get(target, key) {
+          track(target, key);
+
+          return target[key];
+        },
+
+        set(target, key, value) {
+          target[key] = value;
+
+          trigger(target, key, value);
+          return true;
+        },
+      });
+
+      const track = (target, key) => {
+        if (!activeEffect) return target[key];
+
+        // 对象
+        let depsMap = bucket.get(target);
+        if (!depsMap) {
+          bucket.set(target, (depsMap = new Map()));
+        }
+
+        // 属性
+        let deps = depsMap.get(key);
+        if (!deps) {
+          depsMap.set(key, (deps = new Set()));
+        }
+
+        deps.add(activeEffect);
+      };
+
+      const trigger = (target, key, value) => {
+        const depsMap = bucket.get(target);
+        if (!depsMap) return;
+
+        const effects = depsMap.get(key);
+
+        effects && effects.forEach((fn) => fn());
+      };
+
+      let activeEffect;
+      const effect = (fn) => {
+        activeEffect = fn;
+        fn();
+      };
+
+      effect(() => {
+        console.log('🚩 -> [code3:38] -> effect:', 'effect run');
+        document.body.innerText = obj.text;
+      });
+
+      setTimeout(() => {
+        obj.notExist = Date.now();
+      }, 1000);
+    </script>
+  </body>
+</html>

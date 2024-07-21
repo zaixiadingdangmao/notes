@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>code6</title>
+  </head>
+  <body>
+    <script>
+      const data = { foo: 1 };
+
+      const obj = new Proxy(data, {
+        get(target, key) {
+          track(target, key);
+
+          return target[key];
+        },
+
+        set(target, key, value) {
+          target[key] = value;
+
+          trigger(target, key, value);
+          return true;
+        },
+      });
+
+      const bucket = new WeakMap();
+      console.log('🚩 -> [code4:30] -> bucket:', bucket);
+      const track = (target, key) => {
+        if (!activeEffect) return target[key];
+
+        // 对象
+        let depsMap = bucket.get(target);
+        if (!depsMap) {
+          bucket.set(target, (depsMap = new Map()));
+        }
+
+        // 属性
+        let deps = depsMap.get(key);
+        if (!deps) {
+          depsMap.set(key, (deps = new Set()));
+        }
+
+        deps.add(activeEffect);
+        activeEffect.deps.push(deps);
+      };
+
+      const trigger = (target, key, value) => {
+        const depsMap = bucket.get(target);
+        if (!depsMap) return;
+
+        const effects = depsMap.get(key);
+        const effectsToRun = new Set();
+
+        effects &&
+          effects.forEach((effectFn) => {
+            if (effectFn !== activeEffect) {
+              effectsToRun.add(effectFn);
+            }
+          });
+
+        effectsToRun.forEach((effectFn) => {
+          if (effectFn.options.scheduler) {
+            effectFn.options.scheduler(effectFn);
+          } else {
+            effectFn();
+          }
+        });
+      };
+
+      let activeEffect;
+      const effect = (fn, options = {}) => {
+        const effectFn = () => {
+          cleanup(effectFn);
+          let lastEffect = activeEffect;
+          activeEffect = effectFn;
+          try {
+            fn();
+          } finally {
+            activeEffect = lastEffect;
+          }
+        };
+
+        effectFn.options = options;
+        effectFn.deps = [];
+        effectFn();
+      };
+
+      const cleanup = (effectFn) => {
+        for (let i = 0; i < effectFn.deps.length; i++) {
+          const deps = effectFn.deps[i];
+          deps.delete(effectFn);
+        }
+
+        effectFn.deps.length = 0;
+      };
+
+      const jobQueue = new Set();
+      let isFlushing = false;
+      const flushJob = () => {
+        if (isFlushing) return;
+        isFlushing = true;
+
+        Promise.resolve()
+          .then(() => {
+            jobQueue.forEach((job) => job());
+          })
+          .finally(() => {
+            isFlushing = false;
+          });
+      };
+
+      effect(
+        () => {
+          console.log('🚩 -> [code7:102] -> fn:', obj.foo);
+        },
+        {
+          scheduler(fn) {
+            jobQueue.add(fn);
+            flushJob();
+          },
+        }
+      );
+
+      obj.foo++;
+      obj.foo++;
+      obj.foo++;
+    </script>
+  </body>
+</html>
