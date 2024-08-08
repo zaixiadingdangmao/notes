@@ -127,4 +127,4 @@ function myFn(a, b) {
 
 ### 其他文档
 
-[其他补充](https://knightyun.github.io/2020/03/13/js-comment-format)
+[其他补充](https://www.jsdoc.com.cn/)
