@@ -94,13 +94,8 @@ class CustomPrimitive extends Cesium.Primitive {
    */
   constructor(options) {
     super(options);
-    const modelCenter = Cesium.Cartesian3.fromDegrees(
-      121.474509,
-      31.233368,
-      0
-    );
-    const modelMatrix =
-      Cesium.Transforms.eastNorthUpToFixedFrame(modelCenter);
+    const modelCenter = Cesium.Cartesian3.fromDegrees(121.474509, 31.233368, 0);
+    const modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(modelCenter);
     this._modelMatrix = modelMatrix;
   }
 }
@@ -128,3 +123,29 @@ function myFn(a, b) {
 ### 其他文档
 
 [其他补充](https://www.jsdoc.com.cn/)
+
+## 搭配 \*.d.ts 使用
+
+```js
+// type.d.ts
+
+export interface MyFunc {
+  (a: number, b: number): number;
+}
+```
+
+在 `*.js` 文件中使用
+
+```js
+/** @import { MyFunc } from './type.d.ts' */
+
+/** @type {MyFunc} */
+let add;
+
+/** @type {MyFunc} */
+let push;
+
+push = (a, b) => a + b;
+
+add = (a, c) => a * c;
+```
