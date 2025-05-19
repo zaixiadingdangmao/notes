@@ -441,6 +441,37 @@ var longestPalindrome = function (s) {
 
   return s.substring(begin, begin + maxLength);
 };
+
+var longestPalindrome = function (s) {
+	const len = s.length;
+	if (len < 2) return s;
+
+	let maxLength = 1;
+	let begin = 0;
+
+	const dp = new Array(len).fill(0).map(() => new Array(len).fill(false));
+
+	for (let j = 1; j < len; j++) {
+		for (let i = 0; i < j; i++) {
+			if (s[i] !== s[j]) {
+				dp[i][j] = false;
+			} else {
+				if (j - i < 3) {
+					dp[i][j] = true;
+				} else {
+					dp[i][j] = dp[i + 1][j - 1];
+				}
+			}
+
+			if (dp[i][j] && j - i + 1 > maxLength) {
+				maxLength = j - i + 1;
+				begin = i;
+			}
+		}
+	}
+
+	return s.substring(begin, begin + maxLength);
+};
 ```
 
 ## [Z 字形变换](https://leetcode-cn.com/problems/zigzag-conversion/)
