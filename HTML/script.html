@@ -1,0 +1,53 @@
+<script>
+	console.log('log - 1');
+
+	setTimeout(() => {
+		console.log('setTimeout - 1');
+	}, 0);
+
+	Promise.resolve().then(() => {
+		console.log('Promise.resolve - 1');
+	});
+
+	setTimeout(() => {
+		Promise.resolve().then(() => {
+			console.log('setTimeout Promise.then - 1');
+		});
+	}, 0);
+</script>
+
+<script>
+	console.log('log - 2');
+
+	Promise.resolve().then(() => {
+		console.log('Promise.resolve - 2');
+	});
+
+	setTimeout(() => {
+		console.log('setTimeout - 2');
+	}, 0);
+
+	setTimeout(() => {
+		Promise.resolve().then(() => {
+			console.log('setTimeout Promise.then - 2');
+		});
+	}, 0);
+</script>
+
+<script>
+	console.log('log - 3');
+
+	Promise.resolve().then(() => {
+		console.log('Promise.resolve - 3');
+	});
+
+	setTimeout(() => {
+		console.log('setTimeout - 3');
+	}, 0);
+
+	setTimeout(() => {
+		Promise.resolve().then(() => {
+			console.log('setTimeout Promise.then - 3');
+		});
+	}, 0);
+</script>
